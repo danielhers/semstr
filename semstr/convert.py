@@ -182,6 +182,34 @@ def to_sdp(passage, test=False, tree=False, mark_aux=False, preprocess=True, **k
                                                                 format=kwargs.get("format"))
 
 
+def from_ptb(lines, passage_id=None, return_original=False, **kwargs):
+#def from_ptb(passage, passage_id=None, return_original=False, **kwargs):
+    """Converts from parsed text in Penn Treebank mrg format to a Passage object.
+
+    :param lines: iterable of lines in Penn Treebank mrg format, describing a single passage.
+    :param passage_id: ID to set for passage, overriding the ID from the file
+    :param return_original: return triple of (UCCA passage, Mrg string, sentence ID)
+
+    :return generator of Passage objects
+    """
+    from semstr.conversion.ptb import PtbConverter
+    return PtbConverter().from_format(lines, passage_id=passage_id, return_original=return_original,
+                                      format=kwargs.get("format"))
+
+
+def to_ptb(passage, test=False, tree=False, **kwargs):
+    """ Convert from a Passage object to a string in Penn TreeBank mrg format (export)
+
+    :param passage: the Passage object to convert
+    :param test: whether to omit the edge and parent columns. Defaults to False
+    :param tree: whether to omit columns for non-primary parents. Defaults to False
+
+    :return list of lines representing a (discontinuous) tree structure constructed from the passage
+    """
+    from semstr.conversion.ptb import PtbConverter
+    return PtbConverter().to_format(passage, test=test, tree=tree, format=kwargs.get("format"))
+
+
 CONVERTERS = {
     None: (None, None),
     "json": (from_json, to_json),
@@ -191,6 +219,8 @@ CONVERTERS = {
     "export": (from_export, to_export),
     "amr": (from_amr, to_amr),
     "txt": (from_text, to_text),
+    "ptb": (from_ptb, to_ptb),
+    "mrg": (from_ptb, to_ptb),
 }
 FROM_FORMAT = {f: c[0] for f, c in CONVERTERS.items() if c[0] is not None}
 TO_FORMAT = {f: c[1] for f, c in CONVERTERS.items() if c[1] is not None}
